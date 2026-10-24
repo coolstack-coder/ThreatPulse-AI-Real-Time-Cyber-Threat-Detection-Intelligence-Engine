@@ -187,7 +187,7 @@ class Correlator:
             inc.title = top["title"]
 
         recs, seen = [], set()
-        for t in sorted(inc.alert_types, key=lambda t: -stage_index(technique_for(t).tactic)):
+        for t in sorted(inc.alert_types, key=lambda t: (t in SUPPORTING_ONLY, -stage_index(technique_for(t).tactic))):
             pb = technique_for(t).playbook
             if pb not in seen:
                 seen.add(pb)

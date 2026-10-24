@@ -275,6 +275,7 @@ class Engine:
             "version": __version__,
             "source": self.source,
             "uptime": round(time.time() - self.started, 1),
+            "event_time": self.processor.flows.watermark or time.time(),
             "packets": self.processor.packets,
             "bytes": self.processor.bytes,
             "flows": self.processor.flows_done,
