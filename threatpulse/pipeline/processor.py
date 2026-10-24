@@ -35,6 +35,7 @@ class Processor:
         self.flows = FlowAssembler(settings.flow)
         self.ctx = TrafficContext()
         self.ioc = ioc or IocFeed()
+        self.anomaly = FlowAnomalyDetector(det, self.ctx)
         self.detectors: list[Detector] = [
             PortScanDetector(det, self.ctx),
             SynFloodDetector(det, self.ctx),
@@ -44,7 +45,7 @@ class Processor:
             BeaconDetector(det, self.ctx),
             DnsTunnelDetector(det, self.ctx),
             IocDetector(det, self.ctx, self.ioc),
-            FlowAnomalyDetector(det, self.ctx),
+            self.anomaly,
             VolumeAnomalyDetector(det, self.ctx),
         ]
         self._pkt = [d for d in self.detectors if _overrides(d, "on_packet")]
