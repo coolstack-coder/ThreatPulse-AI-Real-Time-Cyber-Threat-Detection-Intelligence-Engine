@@ -1,0 +1,6 @@
+# ThreatPulse demo IOC feed. Format: indicator | description
+# Real deployments sync feeds like abuse.ch, AlienVault OTX or MISP into this file.
+91.240.118.0/24     | demo: botnet C2 range
+5.188.206.14        | demo: credential-stuffing infrastructure
+malware-drop.top    | demo: malware distribution domain
+update-telemetry.xyz| demo: known C2 domain

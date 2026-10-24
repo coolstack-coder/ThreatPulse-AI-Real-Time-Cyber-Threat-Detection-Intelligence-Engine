@@ -1,0 +1,12 @@
+# Overrides for the defaults in threatpulse/config.py. Every key is optional.
+detection:
+  alert_cooldown: 60
+  scan: { window: 10, vertical_ports: 25, horizontal_targets: 30 }
+  beacon: { min_events: 8, max_cv: 0.25 }
+  anomaly: { enabled: true, warmup_flows: 1500, quantile: 0.998 }
+correlation:
+  window: 1800
+llm:
+  # The API key comes from the XAI_API_KEY (or GROK_API_KEY) env var, never from this file.
+  base_url: https://api.x.ai/v1
+  model: grok-3-mini

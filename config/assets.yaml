@@ -1,0 +1,17 @@
+# Asset inventory for the demo network ("Acme Fintech", fictional).
+# Criticality (1-5) scales incident risk: an attack on the domain controller ranks above
+# the same attack on a workstation.
+organization: Acme Fintech (demo)
+hq: { city: Bengaluru, country: India, lat: 12.97, lon: 77.59 }
+hosts:
+  - { ip: 10.0.0.5,  name: jump-01, role: admin,             criticality: 3 }
+  - { ip: 10.0.0.10, name: dc-01,   role: domain-controller, criticality: 5 }
+  - { ip: 10.0.0.20, name: file-01, role: file-server,       criticality: 4 }
+  - { ip: 10.0.0.25, name: mail-01, role: mail,              criticality: 3 }
+  - { ip: 10.0.0.30, name: db-01,   role: database,          criticality: 5 }
+  - { ip: 10.0.0.53, name: dns-01,  role: dns,               criticality: 4 }
+  - { ip: 10.0.0.80, name: web-01,  role: web,               criticality: 4, public: true }
+  - { ip: 10.0.0.81, name: web-02,  role: web,               criticality: 4, public: true }
+workstations: { prefix: "10.0.1.", start: 10, count: 40, criticality: 2 }
+# Hosts allowed to fan out over admin protocols (excluded from lateral-movement detection)
+admin_hosts: [10.0.0.5]
