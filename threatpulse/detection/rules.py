@@ -36,8 +36,8 @@ class PortScanDetector(Detector):
                 return None
             if p.flags != "S":
                 return None
-        elif p.proto != "UDP" or p.dport in (53, 123):
-            return None
+        elif p.proto != "UDP" or p.dport in (53, 123) or p.sport < 1024:
+            return None  # UDP replies come from well-known ports; probes come from ephemeral ones
 
         probes = self._probes.get(p.src)
         if probes is None:
@@ -103,14 +103,16 @@ class SynFloodDetector(Detector):
         if p.proto != "TCP":
             return None
         c = self.cfg.flood
+        # Keyed by service (host, port): a flood hammers one port, while a scan spreads out.
         if p.flags == "SA":
-            self._synack.setdefault(p.src, WindowedCounter(c.window)).add(p.ts)
+            self._synack.setdefault((p.src, p.sport), WindowedCounter(c.window)).add(p.ts)
             return None
         if p.flags != "S":
             return None
 
-        dq = self._syn.setdefault(p.dst, deque())
-        srcs = self._src_counts.setdefault(p.dst, Counter())
+        svc = (p.dst, p.dport)
+        dq = self._syn.setdefault(svc, deque())
+        srcs = self._src_counts.setdefault(svc, Counter())
         dq.append((p.ts, p.src))
         srcs[p.src] += 1
         cutoff = p.ts - c.window
@@ -123,11 +125,11 @@ class SynFloodDetector(Detector):
         n = len(dq)
         if n < c.min_syn:
             return None
-        sa = self._synack.get(p.dst)
+        sa = self._synack.get(svc)
         if sa:
             sa.expire(p.ts)
         ratio = (sa.total if sa else 0) / n
-        if ratio > c.max_synack_ratio or not self.ready(("flood", p.dst), p.ts):
+        if ratio > c.max_synack_ratio or not self.ready(("flood", svc), p.ts):
             return None
 
         spoofed = len(srcs) > 50
@@ -145,9 +147,10 @@ class SynFloodDetector(Detector):
 
     def on_tick(self, now: float) -> None:
         cutoff = now - self.cfg.flood.window
-        for dst in [d for d, q in self._syn.items() if not q or q[-1][0] < cutoff]:
-            del self._syn[dst]
-            self._src_counts.pop(dst, None)
+        for svc in [k for k, q in self._syn.items() if not q or q[-1][0] < cutoff]:
+            del self._syn[svc]
+            self._src_counts.pop(svc, None)
+            self._synack.pop(svc, None)
 
 
 class BruteForceDetector(Detector):
