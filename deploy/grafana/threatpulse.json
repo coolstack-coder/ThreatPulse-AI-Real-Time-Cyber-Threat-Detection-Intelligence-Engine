@@ -1,0 +1,193 @@
+{
+  "title": "ThreatPulse AI \u2014 Engine",
+  "uid": "threatpulse",
+  "schemaVersion": 39,
+  "refresh": "5s",
+  "time": {
+    "from": "now-15m",
+    "to": "now"
+  },
+  "panels": [
+    {
+      "id": 1,
+      "type": "timeseries",
+      "title": "Packets / s",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prom"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 0,
+        "w": 8,
+        "h": 6
+      },
+      "targets": [
+        {
+          "expr": "rate(threatpulse_packets_total[30s])",
+          "refId": "A",
+          "legendFormat": "packets/s"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "type": "timeseries",
+      "title": "Throughput (bits/s)",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prom"
+      },
+      "gridPos": {
+        "x": 8,
+        "y": 0,
+        "w": 8,
+        "h": 6
+      },
+      "targets": [
+        {
+          "expr": "rate(threatpulse_bytes_total[30s]) * 8",
+          "refId": "A",
+          "legendFormat": "bps"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "type": "stat",
+      "title": "Open incidents",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prom"
+      },
+      "gridPos": {
+        "x": 16,
+        "y": 0,
+        "w": 8,
+        "h": 6
+      },
+      "targets": [
+        {
+          "expr": "threatpulse_open_incidents",
+          "refId": "A",
+          "legendFormat": "open"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "type": "timeseries",
+      "title": "Alerts / min by detector",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prom"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 6,
+        "w": 12,
+        "h": 8
+      },
+      "targets": [
+        {
+          "expr": "sum by (detector) (rate(threatpulse_alerts_total[1m]) * 60)",
+          "refId": "A",
+          "legendFormat": "{{detector}}"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "type": "timeseries",
+      "title": "Batch processing latency p50 / p99",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prom"
+      },
+      "gridPos": {
+        "x": 12,
+        "y": 6,
+        "w": 12,
+        "h": 8
+      },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.99, rate(threatpulse_batch_processing_seconds_bucket[1m]))",
+          "refId": "A",
+          "legendFormat": "p99"
+        },
+        {
+          "expr": "histogram_quantile(0.5, rate(threatpulse_batch_processing_seconds_bucket[1m]))",
+          "refId": "B",
+          "legendFormat": "p50"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "type": "timeseries",
+      "title": "Pipeline lag (s)",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prom"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 14,
+        "w": 8,
+        "h": 6
+      },
+      "targets": [
+        {
+          "expr": "threatpulse_pipeline_lag_seconds",
+          "refId": "A",
+          "legendFormat": "lag"
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "type": "timeseries",
+      "title": "Active flows",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prom"
+      },
+      "gridPos": {
+        "x": 8,
+        "y": 14,
+        "w": 8,
+        "h": 6
+      },
+      "targets": [
+        {
+          "expr": "threatpulse_active_flows",
+          "refId": "A",
+          "legendFormat": "flows"
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "type": "timeseries",
+      "title": "Dropped packets / s",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prom"
+      },
+      "gridPos": {
+        "x": 16,
+        "y": 14,
+        "w": 8,
+        "h": 6
+      },
+      "targets": [
+        {
+          "expr": "sum by (reason) (rate(threatpulse_dropped_packets_total[1m]))",
+          "refId": "A",
+          "legendFormat": "{{reason}}"
+        }
+      ]
+    }
+  ]
+}
