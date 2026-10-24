@@ -98,7 +98,7 @@ class VolumeConfig:
     bucket: float = 10.0
     alpha: float = 0.1
     z_threshold: float = 6.0
-    min_bytes: int = 5_000_000
+    min_bytes: int = 10_000_000
     warmup_buckets: int = 6
 
 
