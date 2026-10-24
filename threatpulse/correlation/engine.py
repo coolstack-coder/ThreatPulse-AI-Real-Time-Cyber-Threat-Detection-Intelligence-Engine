@@ -108,6 +108,7 @@ class Correlator:
                     new_entities.append(a.attacker)
             else:
                 inc.attackers.add(a.attacker)
+                inc.enrichment.setdefault("origin", a.attacker)
                 new_entities.append(a.attacker)
         for p in a.peers:
             if not is_internal(p):
@@ -125,10 +126,11 @@ class Correlator:
             self._index[e] = inc.id
 
         tech = technique_for(a.type)
-        if tech.tactic not in inc.tactics:
-            inc.tactics.append(tech.tactic)
-            inc.tactics.sort(key=stage_index)
-        inc.techniques[tech.id] = tech.name
+        if a.type not in SUPPORTING_ONLY:  # ML leads add evidence, not kill-chain stages
+            if tech.tactic not in inc.tactics:
+                inc.tactics.append(tech.tactic)
+                inc.tactics.sort(key=stage_index)
+            inc.techniques[tech.id] = tech.name
         inc.timeline.append({
             "ts": a.ts, "alert_id": a.id, "type": a.type, "title": a.title, "severity": a.severity.label,
             "tactic": tech.tactic, "technique": tech.id,
@@ -205,6 +207,8 @@ class Correlator:
 def template_summary(inc: Incident, assets: AssetInventory) -> str:
     """A deterministic analyst-style narrative, used when no LLM is configured."""
     ext = [e for e in inc.enrichment.get("attackers", []) if e.get("geo")]
+    first = inc.enrichment.get("origin")
+    ext.sort(key=lambda e: e["ip"] != first)  # where the attack started comes first
     origin = ""
     if ext:
         g = ext[0]["geo"]
@@ -213,7 +217,7 @@ def template_summary(inc: Incident, assets: AssetInventory) -> str:
     steps = []
     seen = set()
     for e in inc.timeline:
-        if e["type"] in seen:
+        if e["type"] in seen or e["type"] in SUPPORTING_ONLY:
             continue
         seen.add(e["type"])
         steps.append(f"{e['tactic'].lower()} ({e['technique']}: {e['title']})")
