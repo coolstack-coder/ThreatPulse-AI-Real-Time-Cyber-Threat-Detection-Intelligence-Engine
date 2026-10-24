@@ -61,7 +61,7 @@ export function IncidentDrawer({ incident, blocklist, onClose }: { incident: Inc
               <div key={a.ip} className="entity">
                 <span>{flag(a.geo?.country)}</span>
                 <span className="mono">{a.ip}</span>
-                <span className="muted">{a.geo ? `${a.geo.city}, ${a.geo.country} · ${a.geo.org ?? ""}` : "spoofed / unknown"}</span>
+                <span className="muted">{a.geo ? `${a.geo.city}, ${a.geo.country} · ${a.geo.org ?? ""}` : /^[\d.]+$/.test(a.ip) ? "unknown location" : a.ip.includes("→") ? "spoofed sources" : "malicious domain"}</span>
               </div>
             ))}
             {!i.enrichment.attackers?.length && <div className="muted">Internal origin</div>}

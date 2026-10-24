@@ -90,6 +90,7 @@ export interface Status {
   version: string;
   source: string;
   uptime: number;
+  event_time: number;
   packets: number;
   bytes: number;
   flows: number;

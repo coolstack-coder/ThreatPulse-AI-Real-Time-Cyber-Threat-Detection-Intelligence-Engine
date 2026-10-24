@@ -1,4 +1,5 @@
 import { useEffect, useReducer, useRef } from "react";
+import { syncClock } from "./format";
 import type { Alert, BlockEntry, Campaign, GeoEvent, Incident, Snapshot, Status, Topology } from "./types";
 
 export interface EngineState {
@@ -38,6 +39,7 @@ function apply(state: EngineState, msg: Msg): EngineState {
   switch (msg.type) {
     case "snapshot": {
       const s = msg.data as Snapshot;
+      syncClock(s.status.event_time);
       const incidents: Record<string, Incident> = {};
       for (const i of s.incidents) incidents[i.id] = i;
       return {
@@ -55,6 +57,7 @@ function apply(state: EngineState, msg: Msg): EngineState {
       };
     }
     case "stats":
+      syncClock(msg.data.event_time);
       return { ...state, status: msg.data };
     case "alert": {
       const a = msg.data as Alert;

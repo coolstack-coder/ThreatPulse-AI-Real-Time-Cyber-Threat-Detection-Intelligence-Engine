@@ -1,6 +1,7 @@
 import { useState } from "react";
 import type { Campaign } from "../types";
 import { api } from "../useEngine";
+import { nowTs } from "../format";
 
 const ICON: Record<string, string> = {
   apt_killchain: "☠",
@@ -17,7 +18,7 @@ const ICON: Record<string, string> = {
 /** Red-team console: launches simulated attack campaigns and tracks the ones in progress. */
 export function AttackLauncher({ scenarios, campaigns }: { scenarios: Record<string, string>; campaigns: Campaign[] }) {
   const [busy, setBusy] = useState<string | null>(null);
-  const now = Date.now() / 1000;
+  const now = nowTs();
   const active = campaigns.filter((c) => c.end > now - 5).slice(-3);
   const names = Object.keys(scenarios);
   if (!names.length) return <div className="muted pad">Attack simulation is only available with the simulator source.</div>;

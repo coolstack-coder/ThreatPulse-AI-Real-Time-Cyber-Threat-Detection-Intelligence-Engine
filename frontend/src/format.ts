@@ -59,8 +59,18 @@ export function fmtTime(ts: number): string {
   return new Date(ts * 1000).toLocaleTimeString([], { hour12: false });
 }
 
+// The engine runs on event time (a replay or a sped-up simulation can be ahead of or behind
+// the wall clock), so relative times are measured against the engine's clock.
+let clockOffset = 0;
+export function syncClock(eventTime: number) {
+  clockOffset = eventTime - Date.now() / 1000;
+}
+export function nowTs(): number {
+  return Date.now() / 1000 + clockOffset;
+}
+
 export function ago(ts: number): string {
-  const s = Math.max(0, Date.now() / 1000 - ts);
+  const s = Math.max(0, nowTs() - ts);
   if (s < 60) return `${Math.floor(s)}s ago`;
   if (s < 3600) return `${Math.floor(s / 60)}m ago`;
   return `${Math.floor(s / 3600)}h ago`;

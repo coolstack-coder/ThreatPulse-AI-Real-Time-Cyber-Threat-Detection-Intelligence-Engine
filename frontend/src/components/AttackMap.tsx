@@ -4,7 +4,7 @@ import { feature } from "topojson-client";
 import world from "world-atlas/countries-110m.json";
 import type { GeometryCollection, Topology as TopoJSON } from "topojson-specification";
 import type { GeoEvent } from "../types";
-import { SEV_COLOR, TYPE_LABEL, flag } from "../format";
+import { SEV_COLOR, TYPE_LABEL, flag, nowTs } from "../format";
 import { useSize } from "../useSize";
 
 const topo = world as unknown as TopoJSON<{ countries: GeometryCollection }>;
@@ -13,7 +13,7 @@ const countries = feature(topo, topo.objects.countries);
 /** Live attack map: arcs from each attacker's location to HQ (or from HQ out to C2/exfil endpoints). */
 export function AttackMap({ events, hq }: { events: GeoEvent[]; hq: { lat: number; lon: number; city: string } | null }) {
   const [ref, { width, height }] = useSize<HTMLDivElement>();
-  const now = Date.now() / 1000;
+  const now = nowTs();
 
   const { path, projection, graticule } = useMemo(() => {
     const projection = geoNaturalEarth1().fitExtent(
