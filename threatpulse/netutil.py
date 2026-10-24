@@ -8,6 +8,14 @@ from collections import Counter
 from functools import lru_cache
 
 
+# Explicit list on purpose: ipaddress.is_private also covers the documentation ranges
+# (TEST-NET), which in practice are routable "external" addresses in labs and simulations.
+_INTERNAL_NETS = [ipaddress.ip_network(n) for n in (
+    "10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16", "127.0.0.0/8", "169.254.0.0/16",
+    "fc00::/7", "fe80::/10", "::1/128",
+)]
+
+
 @lru_cache(maxsize=65536)
 def is_internal(ip: str) -> bool:
     """RFC1918, loopback and link-local addresses count as 'inside the perimeter'."""
@@ -15,7 +23,7 @@ def is_internal(ip: str) -> bool:
         addr = ipaddress.ip_address(ip)
     except ValueError:
         return False
-    return addr.is_private or addr.is_loopback or addr.is_link_local
+    return any(addr in net for net in _INTERNAL_NETS if net.version == addr.version)
 
 
 def shannon_entropy(s: str) -> float:
