@@ -1,0 +1,46 @@
+name: CI
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  engine:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python: ["3.11", "3.12", "3.13"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - run: pip install -e ".[dev,capture]"
+      - run: ruff check threatpulse tests
+      - run: pytest -q
+      - name: Detection quality gate
+        if: matrix.python == '3.12'
+        run: |
+          threatpulse evaluate --seeds 1 --benign 900 --out eval.md
+          python -c "import json,sys; r=json.load(open('eval.json')); print(r['overall_recall'], r['false_positive_incidents_per_hour']); sys.exit(0 if r['overall_recall']>=0.95 and r['false_positive_incidents_per_hour']<=1 else 1)"
+
+  dashboard:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+        working-directory: frontend
+      - run: npm run build
+        working-directory: frontend
+
+  docker:
+    runs-on: ubuntu-latest
+    needs: [engine, dashboard]
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker build -t threatpulse:ci .
