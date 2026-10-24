@@ -63,7 +63,7 @@ class LiveStats:
         for t in targets[:10]:
             if a.attacker:
                 self.flagged_edges[(a.attacker, t)] = (time.time(), a.severity.label)
-        if geo:
+        if geo and a.severity.value >= 2:  # low-confidence ML leads stay off the map
             self.geo_events.append({
                 "ts": a.ts, "ip": a.attacker if a.attacker and not is_internal(a.attacker) else (a.peers or [""])[0],
                 "type": a.type, "severity": a.severity.label, "geo": geo, "hq": hq,
