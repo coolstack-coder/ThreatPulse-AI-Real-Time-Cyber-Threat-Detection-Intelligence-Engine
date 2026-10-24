@@ -52,6 +52,18 @@ def _matches(a: Alert, c: Campaign) -> bool:
     return bool(_entities(a) & keys)
 
 
+def _pump(sim: TrafficSimulator, proc: Processor, corr: Correlator, alerts: list[Alert],
+          duration: float, record: bool = True) -> int:
+    n = 0
+    for p in sim.run(duration):
+        n += 1
+        for a in proc.process(p):
+            corr.ingest(a)
+            if record:
+                alerts.append(a)
+    return n
+
+
 def evaluate(seeds: int = 3, warmup: float = 240.0, benign: float = 1800.0, gap: float = 40.0,
              settings: Settings | None = None) -> dict:
     settings = settings or load_settings()
@@ -70,18 +82,9 @@ def evaluate(seeds: int = 3, warmup: float = 240.0, benign: float = 1800.0, gap:
         corr = Correlator(settings.correlation, assets)
         alerts: list[Alert] = []
 
-        def pump(duration: float, record: bool = True):
-            nonlocal packets
-            for p in sim.run(duration):
-                packets += 1
-                for a in proc.process(p):
-                    corr.ingest(a)
-                    if record:
-                        alerts.append(a)
-
-        pump(warmup, record=False)  # ML warm-up, not scored
+        packets += _pump(sim, proc, corr, alerts, warmup, record=False)  # ML warm-up, not scored
         b0 = sim.now
-        pump(benign)
+        packets += _pump(sim, proc, corr, alerts, benign)
         benign_alerts = [a for a in alerts if a.ts >= b0]
         benign_hours += benign / 3600
         for a in benign_alerts:
@@ -92,7 +95,7 @@ def evaluate(seeds: int = 3, warmup: float = 240.0, benign: float = 1800.0, gap:
 
         for scenario in SCENARIOS:
             camp = sim.launch(scenario)
-            pump(camp.end - sim.now + gap)
+            packets += _pump(sim, proc, corr, alerts, camp.end - sim.now + gap)
         for a in proc.flush():
             corr.ingest(a)
             alerts.append(a)

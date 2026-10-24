@@ -8,7 +8,6 @@ covering the address ranges the simulator uses, so the attack map works offline.
 from __future__ import annotations
 
 import os
-from functools import lru_cache
 
 from ..netutil import is_internal
 
@@ -42,6 +41,7 @@ DEMO_GEO: dict[str, tuple[str, str, float, float, str]] = {
 class GeoResolver:
     def __init__(self, mmdb_path: str | None = None):
         self._reader = None
+        self._cache: dict[str, dict | None] = {}
         path = mmdb_path or os.getenv("THREATPULSE_GEOIP_DB")
         if path and os.path.exists(path):
             try:
@@ -51,10 +51,17 @@ class GeoResolver:
             except Exception:  # pragma: no cover - optional dependency
                 self._reader = None
 
-    @lru_cache(maxsize=50_000)
     def lookup(self, ip: str | None) -> dict | None:
         if not ip or is_internal(ip) or "→" in ip:
             return None
+        if ip in self._cache:
+            return self._cache[ip]
+        if len(self._cache) > 50_000:
+            self._cache.clear()
+        res = self._cache[ip] = self._resolve(ip)
+        return res
+
+    def _resolve(self, ip: str) -> dict | None:
         if self._reader is not None:  # pragma: no cover - needs a real database
             try:
                 r = self._reader.city(ip)

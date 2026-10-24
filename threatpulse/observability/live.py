@@ -93,7 +93,7 @@ class LiveStats:
         now = time.time()
         self.flagged_edges = {k: v for k, v in self.flagged_edges.items() if now - v[0] < 300}
         top = edges.most_common(limit)
-        for k, (_, sev) in self.flagged_edges.items():
+        for k in self.flagged_edges:
             if k not in dict(top):
                 top.append((k, edges.get(k, 0)))
         nodes: dict[str, dict] = {}

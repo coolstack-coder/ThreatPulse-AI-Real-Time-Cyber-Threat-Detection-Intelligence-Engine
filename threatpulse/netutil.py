@@ -7,7 +7,6 @@ import math
 from collections import Counter
 from functools import lru_cache
 
-
 # Explicit list on purpose: ipaddress.is_private also covers the documentation ranges
 # (TEST-NET), which in practice are routable "external" addresses in labs and simulations.
 _INTERNAL_NETS = [ipaddress.ip_network(n) for n in (

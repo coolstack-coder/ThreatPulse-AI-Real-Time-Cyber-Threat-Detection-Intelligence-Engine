@@ -43,7 +43,7 @@ class BeaconDetector(Detector):
             return None
 
         starts = [t for t, _ in h]
-        gaps = [b - a for a, b in zip(starts, starts[1:]) if b > a]
+        gaps = [b - a for a, b in zip(starts, starts[1:], strict=False) if b > a]
         if len(gaps) < c.min_events - 1:
             return None
         mean_gap = sum(gaps) / len(gaps)
