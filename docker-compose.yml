@@ -1,0 +1,33 @@
+# One command brings up the engine with dashboard, plus Prometheus and Grafana.
+#   docker compose up --build
+#   dashboard  http://localhost:8000     Prometheus http://localhost:9090     Grafana http://localhost:3000
+services:
+  threatpulse:
+    build: .
+    ports: ["8000:8000"]
+    environment:
+      - XAI_API_KEY=${XAI_API_KEY:-}
+      - THREATPULSE_LLM_MODEL=${THREATPULSE_LLM_MODEL:-grok-3-mini}
+    volumes: ["threatpulse-data:/data"]
+    restart: unless-stopped
+
+  prometheus:
+    image: prom/prometheus:v2.53.0
+    volumes: ["./deploy/prometheus.yml:/etc/prometheus/prometheus.yml:ro"]
+    ports: ["9090:9090"]
+    depends_on: [threatpulse]
+
+  grafana:
+    image: grafana/grafana:11.1.0
+    environment:
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Viewer
+    volumes:
+      - ./deploy/grafana/datasource.yml:/etc/grafana/provisioning/datasources/datasource.yml:ro
+      - ./deploy/grafana/dashboards.yml:/etc/grafana/provisioning/dashboards/dashboards.yml:ro
+      - ./deploy/grafana/threatpulse.json:/var/lib/grafana/dashboards/threatpulse.json:ro
+    ports: ["3000:3000"]
+    depends_on: [prometheus]
+
+volumes:
+  threatpulse-data:
