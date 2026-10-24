@@ -1,0 +1,121 @@
+{
+  "seeds": 3,
+  "scenarios": [
+    {
+      "scenario": "port_scan",
+      "runs": 3,
+      "recall": 1.0,
+      "median_ttd_s": 0.2,
+      "single_incident_rate": 1.0,
+      "max_tactics": 1,
+      "detectors": [
+        "port_scan"
+      ]
+    },
+    {
+      "scenario": "brute_force",
+      "runs": 3,
+      "recall": 1.0,
+      "median_ttd_s": 8.3,
+      "single_incident_rate": 1.0,
+      "max_tactics": 2,
+      "detectors": [
+        "brute_force",
+        "brute_force_success"
+      ]
+    },
+    {
+      "scenario": "syn_flood",
+      "runs": 3,
+      "recall": 1.0,
+      "median_ttd_s": 1.2,
+      "single_incident_rate": 1.0,
+      "max_tactics": 1,
+      "detectors": [
+        "syn_flood"
+      ]
+    },
+    {
+      "scenario": "beaconing",
+      "runs": 3,
+      "recall": 1.0,
+      "median_ttd_s": 35.1,
+      "single_incident_rate": 1.0,
+      "max_tactics": 1,
+      "detectors": [
+        "beaconing"
+      ]
+    },
+    {
+      "scenario": "dns_tunnel",
+      "runs": 3,
+      "recall": 1.0,
+      "median_ttd_s": 1.8,
+      "single_incident_rate": 1.0,
+      "max_tactics": 1,
+      "detectors": [
+        "dns_tunnel"
+      ]
+    },
+    {
+      "scenario": "lateral_movement",
+      "runs": 3,
+      "recall": 1.0,
+      "median_ttd_s": 3.7,
+      "single_incident_rate": 1.0,
+      "max_tactics": 1,
+      "detectors": [
+        "lateral_movement"
+      ]
+    },
+    {
+      "scenario": "exfiltration",
+      "runs": 3,
+      "recall": 1.0,
+      "median_ttd_s": 12.5,
+      "single_incident_rate": 1.0,
+      "max_tactics": 1,
+      "detectors": [
+        "exfiltration",
+        "volume_anomaly"
+      ]
+    },
+    {
+      "scenario": "ioc_contact",
+      "runs": 3,
+      "recall": 1.0,
+      "median_ttd_s": 0.0,
+      "single_incident_rate": 1.0,
+      "max_tactics": 1,
+      "detectors": [
+        "ioc_match"
+      ]
+    },
+    {
+      "scenario": "apt_killchain",
+      "runs": 3,
+      "recall": 1.0,
+      "median_ttd_s": 0.2,
+      "single_incident_rate": 1.0,
+      "max_tactics": 6,
+      "detectors": [
+        "beaconing",
+        "brute_force",
+        "brute_force_success",
+        "dns_tunnel",
+        "exfiltration",
+        "lateral_movement",
+        "port_scan",
+        "volume_anomaly"
+      ]
+    }
+  ],
+  "overall_recall": 1.0,
+  "benign_hours": 1.5,
+  "false_positive_alerts_per_hour": 0.0,
+  "false_positive_incidents_per_hour": 0.0,
+  "false_positives_by_type": {},
+  "packets": 1645139,
+  "wall_seconds": 26.7,
+  "packets_per_second": 61647
+}
